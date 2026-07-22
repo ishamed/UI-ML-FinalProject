@@ -52,3 +52,13 @@ class MLP:
             self.b1 -= self.lr * db1
             self.W2 -= self.lr * dW2
             self.b2 -= self.lr * db2
+
+    def predict_proba(self, X):
+        Z1 = np.dot(X, self.W1) + self.b1
+        A1 = self._relu(Z1)
+        Z2 = np.dot(A1, self.W2) + self.b2
+        return self._sigmoid(Z2).ravel()
+
+    def predict(self, X, threshold=0.5):
+        probs = self.predict_proba(X)
+        return (probs >= threshold).astype(int)
