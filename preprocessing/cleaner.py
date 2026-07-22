@@ -39,5 +39,12 @@ def impute_missing_value(X_train,X_test, n_neighbors=5):
     return X_train_imputed, X_test_imputed
 
 
+def scale_features(X_train, X_test):
+    scaler = StandardScaler()
+    X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns)
+    X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
+
+    return X_train_scaled, X_test_scaled, scaler
+
 
 
