@@ -62,3 +62,30 @@ class MLP:
     def predict(self, X, threshold=0.5):
         probs = self.predict_proba(X)
         return (probs >= threshold).astype(int)
+
+
+class MLPCustomWrapper:
+    def __init__(self, hidden_size=32, learning_rate=0.01, epochs=200):
+        self.model = MLP(
+            hidden_size=hidden_size,
+            learning_rate=learning_rate,
+            epochs=epochs
+        )
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+    def predict_proba(self, X):
+        return self.model.predict_proba(X)
+
+
+def get_model():
+    return MLPCustomWrapper(
+        hidden_size=32,
+        learning_rate=0.05,
+        epochs=300
+    )
