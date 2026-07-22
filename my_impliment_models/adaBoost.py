@@ -5,7 +5,7 @@ class DecisionStump:
         self.polarity = 1
         self.feature_idx = None
         self.threshold = None
-        self.alpha = None  
+        self.alpha = None
 
     def predict(self, X):
         n_samples = X.shape[0]
@@ -18,3 +18,8 @@ class DecisionStump:
             predictions[X_column > self.threshold] = -1
 
         return predictions
+
+class AdaBoost:
+    def __init__(self, n_estimators=50):
+        self.n_estimators = n_estimators
+        self.clfs = []
