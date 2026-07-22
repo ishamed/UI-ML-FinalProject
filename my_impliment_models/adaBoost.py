@@ -49,13 +49,15 @@ class AdaBoost:
                         else:
                             predictions[X_column > threshold] = -1
 
-                        error = sum(w[y_signed != predictions])
-
+                        error = np.sum(w[y_signed != predictions])
                         if error < min_error:
                             min_error = error
                             clf.polarity = polarity
                             clf.threshold = threshold
                             clf.feature_idx = feature_i
+
+            if min_error >= 0.5:
+                break
 
             EPS = 1e-10
             min_error = np.clip(min_error, EPS, 1 - EPS)
