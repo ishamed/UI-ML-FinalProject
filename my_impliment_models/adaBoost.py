@@ -74,3 +74,17 @@ class AdaBoost:
         y_pred = np.sum(clf_preds, axis=0)
 
         return np.where(np.sign(y_pred) <= 0, 0, 1)
+
+class AdaBoostCustomWrapper:
+    def __init__(self, n_estimators=50):
+        self.model = AdaBoost(n_estimators=n_estimators)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+def get_model():
+    return AdaBoostCustomWrapper(n_estimators=50)
