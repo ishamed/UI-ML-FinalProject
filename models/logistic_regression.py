@@ -26,3 +26,9 @@ class LogisticRegression:
 
             self.weights -= self.lr * dw
             self.bias -= self.lr * db
+
+    def predict(self, X):
+        X = np.array(X)
+        linear_model = np.dot(X, self.weights) + self.bias
+        y_predicted = self._sigmoid(linear_model)
+        return np.array([1 if i > 0.5 else 0 for i in y_predicted])
