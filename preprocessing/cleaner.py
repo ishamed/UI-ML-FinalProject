@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import KNNImputer
+from sklearn.model_selection import train_test_split
 import seaborn as sns
 
 def perform_eda(df):
@@ -20,4 +21,14 @@ def perform_eda(df):
     sns.heatmap(df.corr(), annot=True, cmap="coolwarm", fmt=".2f")
     plt.title("Correlation Matrix")
     plt.show()
+
+
+def split_data(df, target_col, test_size):
+    X = df.drop(target_col, axis=1)
+    y = df[target_col]
+
+    y = y.reset_index(drop=True)
+
+    return train_test_split(X, y, test_size=test_size, random_state=42)
+
 
