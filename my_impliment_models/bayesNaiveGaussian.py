@@ -41,3 +41,19 @@ class GaussianNaiveBayesFromScratch:
             posteriors.append(prior + posterior)
 
         return self.classes[np.argmax(posteriors)]
+
+
+class GaussianNBWrapper:
+    def __init__(self):
+        self.model = GaussianNaiveBayesFromScratch()
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+
+def get_model():
+    return GaussianNBWrapper()
