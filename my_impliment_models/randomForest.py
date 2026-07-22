@@ -134,3 +134,28 @@ class RandomForest:
         tree_preds = np.swapaxes(tree_preds, 0, 1)  # Shape: (n_samples, n_estimators)
         y_pred = [np.bincount(row).argmax() for row in tree_preds]
         return np.array(y_pred)
+    
+
+class RandomForestCustomWrapper:
+    def __init__(self, n_estimators=50, max_depth=7, min_samples_split=2):
+        self.model = RandomForest(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_split=min_samples_split,
+            max_features='sqrt'
+        )
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+
+def get_model():
+    return RandomForestCustomWrapper(
+        n_estimators=40,
+        max_depth=7,
+        min_samples_split=4
+    )
