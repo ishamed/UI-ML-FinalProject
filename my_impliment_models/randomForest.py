@@ -94,3 +94,17 @@ class DecisionTreeForForest:
 
     def predict(self, X):
         return np.array([self._predict_row(self.root, x) for x in X])
+
+class RandomForest:
+    def __init__(self, n_estimators=50, max_depth=7, min_samples_split=2, max_features='sqrt'):
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.max_features = max_features
+        self.trees = []
+
+    def _bootstrap_samples(self, X, y):
+        n_samples = X.shape[0]
+        # نمونه‌گیری تصادفی با جایگذاری (Bootstrap)
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        return X[indices], y[indices]
