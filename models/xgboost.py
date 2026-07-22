@@ -75,3 +75,51 @@ class XGBoostTree:
         if x[node.feature] <= node.threshold:
             return self._predict_row(node.left, x)
         return self._predict_row(node.right, x)
+
+
+class XGBoostClassifier:
+    def __init__(self, n_estimators=15, learning_rate=0.1, max_depth=3, lambda_reg=1.0, gamma=0.0):
+        self.n_estimators = n_estimators
+        self.lr = learning_rate
+        self.max_depth = max_depth
+        self.lambda_reg = lambda_reg
+        self.gamma = gamma
+        self.trees = []
+
+    def _sigmoid(self, x):
+        return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
+
+    def fit(self, X, y):
+        X = np.array(X)
+        y = np.array(y)
+
+        y_pred_log_odds = np.zeros(len(y))
+
+        for _ in range(self.n_estimators):
+            p = self._sigmoid(y_pred_log_odds)
+
+
+            g = p - y
+            h = p * (1 - p) + 1e-16
+
+            tree = XGBoostTree(
+                max_depth=self.max_depth,
+                lambda_reg=self.lambda_reg,
+                gamma=self.gamma
+            )
+            tree.fit(X, g, h)
+
+            update = tree.predict(X)
+            y_pred_log_odds += self.lr * update
+            self.trees.append(tree)
+
+    def predict_proba(self, X):
+        X = np.array(X)
+        y_pred_log_odds = np.zeros(len(X))
+        for tree in self.trees:
+            y_pred_log_odds += self.lr * tree.predict(X)
+        return self._sigmoid(y_pred_log_odds)
+
+    def predict(self, X, threshold=0.5):
+        probas = self.predict_proba(X)
+        return np.where(probas >= threshold, 1, 0)
