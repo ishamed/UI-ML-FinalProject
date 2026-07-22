@@ -79,3 +79,21 @@ class XGBoostFromScratch:
     def _sigmoid(self, x):
         x = np.clip(x, -50, 50)
         return 1 / (1 + np.exp(-x))
+
+    def fit(self, X, y):
+        y = np.array(y)
+
+        p_mean = np.mean(y)
+        self.base_pred = np.log(p_mean / (1 - p_mean))
+        F_m = np.full(shape=len(y), fill_value=self.base_pred, dtype=np.float64)
+
+        for i in range(self.n_estimators):
+            p = self._sigmoid(F_m)
+
+            residuals = y - p
+
+            tree = DecisionTree(max_depth=self.max_depth)
+            tree.fit(X, residuals)
+
+            F_m += self.learning_rate * tree.predict(X)
+            self.trees.append(tree)
