@@ -1,6 +1,6 @@
 import numpy as np
 
-class DecisionTreeRegressorFromScratch:
+class DecisionTree:
     def __init__(self, max_depth=3, min_samples_split=2):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -66,3 +66,16 @@ class DecisionTreeRegressorFromScratch:
 
     def predict(self, X):
         return np.array([self._predict_row(self.tree, x) for x in X])
+
+
+class XGBoostFromScratch:
+    def __init__(self, n_estimators=50, learning_rate=0.1, max_depth=3):
+        self.n_estimators = n_estimators
+        self.learning_rate = learning_rate
+        self.max_depth = max_depth
+        self.trees = []
+        self.base_pred = None
+
+    def _sigmoid(self, x):
+        x = np.clip(x, -50, 50)
+        return 1 / (1 + np.exp(-x))
