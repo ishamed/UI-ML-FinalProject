@@ -97,3 +97,14 @@ class XGBoostFromScratch:
 
             F_m += self.learning_rate * tree.predict(X)
             self.trees.append(tree)
+
+    def predict_proba(self, X):
+        F_m = np.full(shape=len(X), fill_value=self.base_pred, dtype=np.float64)
+        for tree in self.trees:
+            F_m += self.learning_rate * tree.predict(X)
+        probs = self._sigmoid(F_m)
+        return probs
+
+    def predict(self, X, threshold=0.5):
+        probs = self.predict_proba(X)
+        return (probs >= threshold).astype(int)
