@@ -68,3 +68,9 @@ class AdaBoost:
             w /= np.sum(w)
 
             self.clfs.append(clf)
+
+    def predict(self, X):
+        clf_preds = [clf.alpha * clf.predict(X) for clf in self.clfs]
+        y_pred = np.sum(clf_preds, axis=0)
+
+        return np.where(np.sign(y_pred) <= 0, 0, 1)
