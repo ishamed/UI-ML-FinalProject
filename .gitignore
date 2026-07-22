@@ -1,0 +1,25 @@
+# PyCharm IDE
+.idea/
+*.iml
+out/
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Jupyter Notebook & JupyterLab
+.ipynb_checkpoints/
+
+# Data & Datasets (Prevent uploading heavy data files)
+data/
+*.csv
+*.xlsx
+*.parquet
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
