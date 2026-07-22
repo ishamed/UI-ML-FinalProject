@@ -105,6 +105,32 @@ class RandomForest:
 
     def _bootstrap_samples(self, X, y):
         n_samples = X.shape[0]
-        # نمونه‌گیری تصادفی با جایگذاری (Bootstrap)
         indices = np.random.choice(n_samples, size=n_samples, replace=True)
         return X[indices], y[indices]
+
+    def fit(self, X, y):
+        self.trees = []
+        n_features = X.shape[1]
+
+        if self.max_features == 'sqrt':
+            num_features = int(np.sqrt(n_features))
+        elif isinstance(self.max_features, int):
+            num_features = self.max_features
+        else:
+            num_features = n_features
+
+        for _ in range(self.n_estimators):
+            tree = DecisionTreeForForest(
+                max_depth=self.max_depth,
+                min_samples_split=self.min_samples_split,
+                max_features=num_features
+            )
+            X_sample, y_sample = self._bootstrap_samples(X, y)
+            tree.fit(X_sample, y_sample)
+            self.trees.append(tree)
+
+    def predict(self, X):
+        tree_preds = np.array([tree.predict(X) for tree in self.trees])  # Shape: (n_estimators, n_samples)
+        tree_preds = np.swapaxes(tree_preds, 0, 1)  # Shape: (n_samples, n_estimators)
+        y_pred = [np.bincount(row).argmax() for row in tree_preds]
+        return np.array(y_pred)
