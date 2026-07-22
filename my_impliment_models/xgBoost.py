@@ -68,7 +68,7 @@ class DecisionTree:
         return np.array([self._predict_row(self.tree, x) for x in X])
 
 
-class XGBoostFromScratch:
+class XGBoost:
     def __init__(self, n_estimators=50, learning_rate=0.1, max_depth=3):
         self.n_estimators = n_estimators
         self.learning_rate = learning_rate
@@ -108,3 +108,25 @@ class XGBoostFromScratch:
     def predict(self, X, threshold=0.5):
         probs = self.predict_proba(X)
         return (probs >= threshold).astype(int)
+
+class XGBoostCustomWrapper:
+    def __init__(self, n_estimators=50, learning_rate=0.1, max_depth=3):
+        self.model = XGBoost(
+            n_estimators=n_estimators,
+            learning_rate=learning_rate,
+            max_depth=max_depth
+        )
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+    def predict_proba(self, X):
+        return self.model.predict_proba(X)
+
+
+def get_model():
+    return XGBoostCustomWrapper(n_estimators=40, learning_rate=0.08, max_depth=3)
