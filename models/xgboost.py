@@ -123,3 +123,17 @@ class XGBoostClassifier:
     def predict(self, X, threshold=0.5):
         probas = self.predict_proba(X)
         return np.where(probas >= threshold, 1, 0)
+
+class XGBoostWrapper:
+    def __init__(self, n_estimators=15, learning_rate=0.1, max_depth=3):
+        self.model = XGBoostClassifier(n_estimators=n_estimators, learning_rate=learning_rate, max_depth=max_depth)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X, threshold=0.5)
+
+def get_model():
+    return XGBoostWrapper()

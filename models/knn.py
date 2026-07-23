@@ -19,4 +19,17 @@ class KNN:
     def predict(self, X):
         X = np.array(X)
         return np.array([self._predict_single(x) for x in X])
-    
+
+class KNNWrapper:
+    def __init__(self, k=5):
+        self.model = KNN(k=k)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+def get_model():
+    return KNNWrapper(k=5)
