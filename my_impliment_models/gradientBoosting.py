@@ -123,7 +123,7 @@ class GradientBoosting:
 
 
 class GradientBoostingCustomWrapper:
-    def __init__(self, n_estimators=40, learning_rate=0.08, max_depth=3, scale_pos_weight=1.56):
+    def __init__(self, n_estimators=150, learning_rate=0.1, max_depth=4, scale_pos_weight=2.5):
         self.model = GradientBoosting(
             n_estimators=n_estimators,
             learning_rate=learning_rate,
@@ -143,4 +143,4 @@ class GradientBoostingCustomWrapper:
 
 
 def get_model():
-    return GradientBoostingCustomWrapper(n_estimators=40, learning_rate=0.08, max_depth=3, scale_pos_weight=1.56)
+    return GradientBoostingCustomWrapper(n_estimators=150, learning_rate=0.05, max_depth=4, scale_pos_weight=1.7)
