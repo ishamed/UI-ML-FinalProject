@@ -18,7 +18,12 @@ class DecisionTreeRegressor:
         parent_mse = np.var(y)
 
         for feat_idx in range(n_features):
-            thresholds = np.unique(X[:, feat_idx])
+            unique_vals = np.unique(X[:, feat_idx])
+            if len(unique_vals) > 10:
+                thresholds = np.percentile(X[:, feat_idx], np.linspace(10, 90, 9))
+            else:
+                thresholds = unique_vals
+
             for thresh in thresholds:
                 left_mask = X[:, feat_idx] <= thresh
                 right_mask = ~left_mask
