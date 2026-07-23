@@ -23,12 +23,44 @@ class MLP:
         n_samples, n_features = X.shape
         y = y.reshape(-1, 1)
 
-        np.random.seed(42)
-        self.W1 = np.random.randn(n_features, self.hidden_size) * np.sqrt(2.0 / n_features)
+        rng = np.random.RandomState(42)
+
+        self.W1 = rng.randn(n_features, self.hidden_size) * np.sqrt(2.0 / n_features)
         self.b1 = np.zeros((1, self.hidden_size))
 
-        self.W2 = np.random.randn(self.hidden_size, 1) * np.sqrt(2.0 / self.hidden_size)
+        self.W2 = rng.randn(self.hidden_size, 1) * np.sqrt(2.0 / self.hidden_size)
         self.b2 = np.zeros((1, 1))
+
+        self.loss_history = []
+
+        for epoch in range(self.epochs):
+            Z1 = np.dot(X, self.W1) + self.b1
+            A1 = self._relu(Z1)
+
+            Z2 = np.dot(A1, self.W2) + self.b2
+            A2 = self._sigmoid(Z2)
+
+            loss = -np.mean(y * np.log(A2 + 1e-9) + (1 - y) * np.log(1 - A2 + 1e-9))
+            self.loss_history.append(loss)
+
+            if (epoch + 1) % 50 == 0:
+                print(f"Epoch {epoch + 1}/{self.epochs} - Loss: {loss:.4f}")
+
+            dZ2 = A2 - y
+
+            dW2 = np.dot(A1.T, dZ2) / n_samples
+            db2 = np.sum(dZ2, axis=0, keepdims=True) / n_samples
+
+            dA1 = np.dot(dZ2, self.W2.T)
+            dZ1 = dA1 * self._relu_derivative(Z1)
+
+            dW1 = np.dot(X.T, dZ1) / n_samples
+            db1 = np.sum(dZ1, axis=0, keepdims=True) / n_samples
+
+            self.W1 -= self.lr * dW1
+            self.b1 -= self.lr * db1
+            self.W2 -= self.lr * dW2
+            self.b2 -= self.lr * db2
 
         for _ in range(self.epochs):
             Z1 = np.dot(X, self.W1) + self.b1
@@ -87,5 +119,5 @@ def get_model():
     return MLPCustomWrapper(
         hidden_size=32,
         learning_rate=0.05,
-        epochs=300
+        epochs=1000
     )
