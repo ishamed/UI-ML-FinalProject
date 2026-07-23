@@ -1,18 +1,16 @@
 import numpy as np
 
 class GaussianNaiveBayesFromScratch:
-    def __init__(self):
+    def __init__(self , priors=None):
         self.classes = None
         self.mean = None
         self.var = None
-        self.priors = None
+        self.priors = priors
 
-    def _pdf(self, class_idx, x):
+    def _log_pdf(self, class_idx, x):
         mean = self.mean[class_idx]
         var = self.var[class_idx]
-        numerator = np.exp(-((x - mean) ** 2) / (2 * var))
-        denominator = np.sqrt(2 * np.pi * var)
-        return numerator / denominator
+        return -0.5 * np.log(2 * np.pi * var) - ((x - mean) ** 2) / (2 * var)
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
@@ -21,13 +19,18 @@ class GaussianNaiveBayesFromScratch:
 
         self.mean = np.zeros((n_classes, n_features))
         self.var = np.zeros((n_classes, n_features))
-        self.priors = np.zeros(n_classes)
+        if self.priors is None:
+            self.priors = np.zeros(n_classes)
+            calculate_priors = True
+        else:
+            calculate_priors = False
 
         for idx, c in enumerate(self.classes):
             X_c = X[y == c]
             self.mean[idx, :] = X_c.mean(axis=0)
             self.var[idx, :] = X_c.var(axis=0) + 1e-9
-            self.priors[idx] = X_c.shape[0] / float(n_samples)
+            if calculate_priors:
+                self.priors[idx] = X_c.shape[0] / float(n_samples)
 
     def predict(self, X):
         return np.array([self._predict_row(x) for x in X])
@@ -37,15 +40,15 @@ class GaussianNaiveBayesFromScratch:
 
         for idx, c in enumerate(self.classes):
             prior = np.log(self.priors[idx])
-            posterior = np.sum(np.log(self._pdf(idx, x) + 1e-9))
+            posterior = np.sum(self._log_pdf(idx, x))
             posteriors.append(prior + posterior)
 
         return self.classes[np.argmax(posteriors)]
 
 
 class GaussianNBWrapper:
-    def __init__(self):
-        self.model = GaussianNaiveBayesFromScratch()
+    def __init__(self, priors=None):
+        self.model = GaussianNaiveBayesFromScratch(priors=priors)
 
     def fit(self, X, y):
         self.model.fit(X, y)
@@ -54,6 +57,5 @@ class GaussianNBWrapper:
     def predict(self, X):
         return self.model.predict(X)
 
-
 def get_model():
-    return GaussianNBWrapper()
+    return GaussianNBWrapper(priors=[0.5, 0.5])

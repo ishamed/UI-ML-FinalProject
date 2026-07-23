@@ -20,16 +20,18 @@ class DecisionStump:
         return predictions
 
 class AdaBoost:
-    def __init__(self, n_estimators=50):
+    def __init__(self, n_estimators=50, learning_rate=0.1):
         self.n_estimators = n_estimators
+        self.learning_rate = learning_rate
         self.clfs = []
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
-
         y_signed = np.where(y <= 0, -1, 1)
 
-        w = np.full(n_samples, (1 / n_samples))
+        n_pos = np.sum(y_signed == 1)
+        n_neg = np.sum(y_signed == -1)
+        w = np.where(y_signed == 1, 1.0 / (2 * n_pos), 1.0 / (2 * n_neg))
 
         self.clfs = []
 
@@ -57,13 +59,13 @@ class AdaBoost:
                             clf.feature_idx = feature_i
 
             if min_error >= 0.5:
+                print("early stop")
                 break
 
             EPS = 1e-10
             min_error = np.clip(min_error, EPS, 1 - EPS)
 
-            clf.alpha = 0.5 * np.log((1.0 - min_error) / min_error)
-
+            clf.alpha = self.learning_rate * 0.5 * np.log((1.0 - min_error) / min_error)
             predictions = clf.predict(X)
             w *= np.exp(-clf.alpha * y_signed * predictions)
 
@@ -78,8 +80,8 @@ class AdaBoost:
         return np.where(np.sign(y_pred) <= 0, 0, 1)
 
 class AdaBoostCustomWrapper:
-    def __init__(self, n_estimators=50):
-        self.model = AdaBoost(n_estimators=n_estimators)
+    def __init__(self, n_estimators=50, learning_rate=0.1):
+        self.model = AdaBoost(n_estimators=n_estimators , learning_rate=learning_rate)
 
     def fit(self, X, y):
         self.model.fit(X, y)
@@ -89,4 +91,4 @@ class AdaBoostCustomWrapper:
         return self.model.predict(X)
 
 def get_model():
-    return AdaBoostCustomWrapper(n_estimators=50)
+    return AdaBoostCustomWrapper(n_estimators=50 , learning_rate=0.05)

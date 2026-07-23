@@ -33,8 +33,9 @@ def split_data(df, target_col, test_size):
 
 def impute_missing_value(X_train,X_test, n_neighbors=5):
     imputer = KNNImputer(n_neighbors=n_neighbors)
-    X_train_imputed = pd.DataFrame(imputer.fit_transform(X_train),columns=X_train.columns)
-    X_test_imputed = pd.DataFrame(imputer.fit(X_test), columns=X_test.columns)
+   
+    X_train_imputed = pd.DataFrame(imputer.fit_transform(X_train), columns=X_train.columns)
+    X_test_imputed = pd.DataFrame(imputer.transform(X_test), columns=X_test.columns)
 
     return X_train_imputed, X_test_imputed
 

@@ -1,4 +1,5 @@
 import numpy as np
+from collections import Counter
 
 class DecisionTreeLeaf:
     def __init__(self, value):
@@ -43,9 +44,16 @@ class DecisionTreeForForest:
             feat_indices = np.random.choice(n_features, self.max_features, replace=False)
 
         for feat_idx in feat_indices:
-            thresholds = np.unique(X[:, feat_idx])
+            X_column = X[:, feat_idx]
+            unique_vals = np.unique(X_column)
+
+            if len(unique_vals) > 10:
+                thresholds = np.percentile(X_column, np.linspace(10, 90, 9))
+            else:
+                thresholds = unique_vals
+
             for thresh in thresholds:
-                left_mask = X[:, feat_idx] <= thresh
+                left_mask = X_column <= thresh
                 right_mask = ~left_mask
 
                 if np.sum(left_mask) == 0 or np.sum(right_mask) == 0:
@@ -61,7 +69,6 @@ class DecisionTreeForForest:
                     best_gain = gain
                     split_idx = feat_idx
                     split_thresh = thresh
-
         return split_idx, split_thresh
 
     def _build_tree(self, X, y, depth=0):
@@ -129,33 +136,50 @@ class RandomForest:
             tree.fit(X_sample, y_sample)
             self.trees.append(tree)
 
-    def predict(self, X):
+    def predict(self, X, threshold=0.5):
         tree_preds = np.array([tree.predict(X) for tree in self.trees])  # Shape: (n_estimators, n_samples)
         tree_preds = np.swapaxes(tree_preds, 0, 1)  # Shape: (n_samples, n_estimators)
-        y_pred = [np.bincount(row).argmax() for row in tree_preds]
+
+        y_pred = []
+        n_trees = len(self.trees)
+
+        for row in tree_preds:
+            if len(row) == 0:
+                y_pred.append(0)
+            else:
+                votes_for_one = np.sum(row == 1)
+                prob_one = votes_for_one / n_trees
+
+                if prob_one >= threshold:
+                    y_pred.append(1)
+                else:
+                    y_pred.append(0)
+
         return np.array(y_pred)
     
 
 class RandomForestCustomWrapper:
-    def __init__(self, n_estimators=50, max_depth=7, min_samples_split=2):
+    def __init__(self, n_estimators=50, max_depth=7, min_samples_split=2, threshold=0.35):
         self.model = RandomForest(
             n_estimators=n_estimators,
             max_depth=max_depth,
             min_samples_split=min_samples_split,
             max_features='sqrt'
         )
+        self.threshold = threshold
 
     def fit(self, X, y):
         self.model.fit(X, y)
         return self
 
     def predict(self, X):
-        return self.model.predict(X)
+        return self.model.predict(X, threshold=self.threshold)
 
 
 def get_model():
     return RandomForestCustomWrapper(
         n_estimators=40,
         max_depth=7,
-        min_samples_split=4
+        min_samples_split=4,
+        threshold=0.35
     )
