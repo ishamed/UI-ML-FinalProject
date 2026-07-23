@@ -32,3 +32,17 @@ class LogisticRegression:
         linear_model = np.dot(X, self.weights) + self.bias
         y_predicted = self._sigmoid(linear_model)
         return np.array([1 if i > 0.5 else 0 for i in y_predicted])
+
+class LogisticRegressionWrapper:
+    def __init__(self, learning_rate=0.01, epochs=1000):
+        self.model = LogisticRegression(learning_rate=learning_rate, epochs=epochs)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+def get_model():
+    return LogisticRegressionWrapper()

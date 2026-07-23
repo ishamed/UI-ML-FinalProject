@@ -30,3 +30,17 @@ class SVM:
         X = np.array(X)
         approx = np.dot(X, self.weights) - self.bias
         return np.where(approx >= 0, 1, 0)
+
+class SVMWrapper:
+    def __init__(self, learning_rate=0.001, lambda_param=0.01, epochs=1000):
+        self.model = SVM(learning_rate=learning_rate, lambda_param=lambda_param, epochs=epochs)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+def get_model():
+    return SVMWrapper()

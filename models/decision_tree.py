@@ -82,3 +82,17 @@ class DecisionTree:
         if x[node.feature] <= node.threshold:
             return self._traverse_tree(x, node.left)
         return self._traverse_tree(x, node.right)
+
+class DecisionTreeWrapper:
+    def __init__(self, min_samples_split=2, max_depth=100):
+        self.model = DecisionTree(min_samples_split=min_samples_split, max_depth=max_depth)
+
+    def fit(self, X, y):
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+def get_model():
+    return DecisionTreeWrapper(max_depth=10)
